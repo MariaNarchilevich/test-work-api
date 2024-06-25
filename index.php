@@ -1,27 +1,18 @@
 <?php
-$arrContextOptions = [
-    "ssl" => [
-        "verify_peer" => FALSE,
-        "verify_peer_name" => FALSE,
-    ],
-    'http' => [
-        'header' => 'Connection: close\r\n',
-    ],
-];
+$apiKey = "wj0uMxwdUVX7PBEIjTB6h0GQ1lyJYkkg";
+$url = "https://dimm.retailcrm.ru/api/v5/orders?apiKey=". $apiKey;
 
-$api_key = 'wj0uMxwdUVX7PBEIjTB6h0GQ1lyJYkkg';
+$headers = array(
+    "Content-Type: application/x-www-form-urlencoded"
+);
 
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-$urn_data = [
-    'apiKey' => $api_key,
-    'limit'=> 100
-];
-$urn = http_build_query($urn_data);
-$url_api = 'https://dimm.retailcrm.ru/api/v5/orders?' . $urn;
-
-$json_content = file_get_contents($url_api, FALSE, stream_context_create($arrContextOptions));
-
-$data = json_decode($json_content, TRUE);
+$response = curl_exec($ch);
+$data = json_decode($response, true);
 
 if (isset($data['success']) && $data['success'] == true) {
     $productsCount = [];
@@ -51,24 +42,10 @@ if (isset($data['success']) && $data['success'] == true) {
     $topProductAmount = array_search($maxAmount, $productsAmount);
 
     echo "Топ товар по количеству в заказах: " . $topProductQuantity . " - " . $maxQuantity . " штук <br>";
-    echo "Топ товар по сумме в заказах: " . $topProductAmount . " - " . $maxAmount . " <br>";
+    echo "Топ товар по сумме в заказах: " . $topProductAmount . " - " . $maxAmount . "<br>";
 } else {
-    echo "Ошибка получения данных\n";
+    echo "Ошибка получения данных <br>";
 }
 
-
-
-$urn_data = [
-    'apiKey' => $api_key,
-    'task[text]' => "Проверить тестовое задание \n  Нарчилевич Мария исполнителя \n  ",
-    'task[performerId]' => 6
-];
-$urn = http_build_query($urn_data);
-$url_api = 'https://dimm.retailcrm.ru/api/v5/tasks/create?' . $urn;
-
-$json_content = file_get_contents($url_api, FALSE, stream_context_create($arrContextOptions));
-
-$data = json_decode($json_content, TRUE);
-
-var_dump($data);
+curl_close($ch);
 ?>
